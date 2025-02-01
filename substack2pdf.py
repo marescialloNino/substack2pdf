@@ -42,11 +42,11 @@ def fetch_substack_content(url, remove_images=False, font_size='big'):
 
     # Set CSS font sizes based on the chosen option
     if font_size == 'small':
-        body_font = "18px"
-        h1_font = "24px"
+        body_font = "14px"
+        h1_font = "22px"
     else:  # Default to 'big'
-        body_font = "26px"
-        h1_font = "34px"
+        body_font = "18px"
+        h1_font = "28px"
 
     # Build an HTML document with custom CSS for styling.
     content_html = (
