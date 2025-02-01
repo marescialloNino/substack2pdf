@@ -24,30 +24,34 @@ This command-line tool converts a Substack post into a PDF file. It fetches the 
 ## Installation
 
 1. Clone the repository:
-    git clone <repository-url>
-    cd <repository-folder>
+    - git clone <repository-url>
+    - cd <repository-folder>
 
 2. Create a virtual environment(good practice):
-    python -m venv venv
-        source venv/bin/activate  # On macOS/Linux
-        venv\Scripts\activate     # On Windows
+    - python -m venv venv
+       - source venv/bin/activate  # On macOS/Linux
+        - venv\Scripts\activate     # On Windows
 
 3. Install the required Python packages:
-    pip install -r requirements.txt
+    - pip install -r requirements.txt
 
 4. Install wkhtmltopdf:
-    https://wkhtmltopdf.org/downloads.html
-    Add wkhtmltopdf to the system PATH
+    - https://wkhtmltopdf.org/downloads.html
+    - Add wkhtmltopdf to the system PATH
 
 5. Run the script
 
 ## Usage
 
-Export with default settings (big font with images):
-- python substack_to_pdf.py "https://your-substack-post-url"
+Export with default settings (big font with images, title taken from post name):
+- python3 substack2pdf.py "https://cryptohayes.substack.com/p/the-cure"
 
-Export with custom settings:
-- python substack_to_pdf.py "https://your-substack-post-url" --font-size small --output-path ~/Desktop/my_tytle.pdf
+Export with custom title:
+- python3 substack2pdf.py "https://cryptohayes.substack.com/p/the-cure" --output ~/Desktop/arthur_hayes_the_cure.pdf
 
-Export without images:
-- python substack_to_pdf.py "https://your-substack-post-url" --no-images --output-path ~/Desktop/no_images.pdf
+
+Export with custom title and font:
+- python3 substack2pdf.py "https://cryptohayes.substack.com/p/the-cure" --font-size small -o ~/Desktop/arthur_hayes_the_cure.pdf
+
+Export without images and custom title:
+- python3 substack2pdf.py "https://cryptohayes.substack.com/p/the-cure" --no-images --o ~/Desktop/no_images.pdf
