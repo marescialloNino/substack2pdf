@@ -1,0 +1,17 @@
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# Virtual environment directory (if you use one)
+venv/
+env/
+
+# System-specific files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+
+# PDF outputs (if you don't want to track generated PDFs)
+*.pdf
