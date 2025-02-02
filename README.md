@@ -47,7 +47,7 @@ Export with default settings (big font with images, title taken from post name):
 - python3 substack2pdf.py "https://cryptohayes.substack.com/p/the-cure"
 
 Export with custom title:
-- python3 substack2pdf.py "https://cryptohayes.substack.com/p/the-cure" --output ~/Desktop/arthur_hayes_the_cure.pdf
+- python3 substack2pdf.py "https://cryptohayes.substack.com/p/pvp" --output ~/Desktop/arthur_hayes_pvp.pdf
 
 
 Export with custom title and font:
@@ -55,3 +55,7 @@ Export with custom title and font:
 
 Export without images and custom title:
 - python3 substack2pdf.py "https://cryptohayes.substack.com/p/the-cure" --no-images --o ~/Desktop/no_images.pdf
+
+Export from Medium (Cannot render images for now):
+- python3 substack2pdf.py "https://ehandbook.com/teach-me-daddy-33e7a66dfe76" --medium --no-images --font-size small
+ 
