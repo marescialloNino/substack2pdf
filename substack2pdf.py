@@ -3,7 +3,7 @@ import os
 import re
 import requests
 from bs4 import BeautifulSoup
-import pdfkit
+from xhtml2pdf import pisa
 
 
 def sanitize_filename(name):
@@ -143,7 +143,7 @@ def fetch_substack_content(url, remove_images=False, font_size='big', medium=Fal
 
     # Build an HTML document with custom CSS for styling.
     content_html = (
-        f"<html><head><meta charset='utf-8'>"
+        f"<html dir='ltr'><head><meta charset='utf-8'>"
         f"<style>"
         f"  body {{ font-size: {body_font} !important; line-height: 2.0; margin: 20px; }} "
         f"  h1 {{ font-size: {h1_font} !important; margin-bottom: 10px; }} "
@@ -168,27 +168,17 @@ def fetch_substack_content(url, remove_images=False, font_size='big', medium=Fal
 def save_as_pdf(content_html, output_filename):
     """
     Converts the provided HTML to a PDF file.
-    
+
     Parameters:
         content_html (str): HTML content of the post.
         output_filename (str): The filename for the resulting PDF.
     """
-    options = {
-        'encoding': 'UTF-8',
-        'page-size': 'A4',
-        'quiet': '',
-        'javascript-delay': '5000',  # Wait 2000ms to allow images to load
-    }
-    
-    # Explicitly set the path to the wkhtmltopdf binary.
-    # Update '/usr/local/bin/wkhtmltopdf' if your installation path is different.
-    config = pdfkit.configuration(wkhtmltopdf='/usr/local/bin/wkhtmltopdf')
-    
-    try:
-        pdfkit.from_string(content_html, output_filename, options=options, configuration=config)
+    with open(output_filename, 'wb') as f:
+        result = pisa.CreatePDF(content_html, dest=f)
+    if result.err:
+        print("Error during PDF generation:", result.err)
+    else:
         print(f"✅ PDF saved as: {output_filename}")
-    except Exception as e:
-        print("Error during PDF generation:", e)
 
 def main():
     parser = argparse.ArgumentParser(
