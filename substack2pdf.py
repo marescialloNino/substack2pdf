@@ -1,9 +1,12 @@
 import argparse
-import os
+import logging
 import re
+from urllib.parse import urlparse
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 from xhtml2pdf import pisa
+
+logging.getLogger('xhtml2pdf').setLevel(logging.ERROR)
 
 
 def sanitize_filename(name):
@@ -89,7 +92,7 @@ def fetch_substack_content(url, remove_images=False, font_size='big', medium=Fal
         el.decompose()
 
     # Simplify <picture> elements: keep only the <img>, drop <source> tags
-    # (wkhtmltopdf doesn't support <picture>/<source>).
+    # (xhtml2pdf doesn't support <picture>/<source>).
     for picture in content_div.find_all('picture'):
         img = picture.find('img')
         if img:
@@ -107,7 +110,7 @@ def fetch_substack_content(url, remove_images=False, font_size='big', medium=Fal
     for inset in content_div.find_all('div', class_='image2-inset'):
         # Remove non-image children (overlay buttons, divs, etc.)
         for child in list(inset.children):
-            if hasattr(child, 'name') and child.name and child.name != 'img':
+            if isinstance(child, Tag) and child.name != 'img':
                 child.decompose()
         inset.unwrap()
 
@@ -119,14 +122,12 @@ def fetch_substack_content(url, remove_images=False, font_size='big', medium=Fal
     # Ensure images have a proper src attribute by checking multiple attributes.
     for img in content_div.find_all('img'):
         if not img.get('src'):
-            if img.get('data-src'):
-                img['src'] = img.get('data-src')
-            elif img.get('data-srcset'):
-                srcset = img.get('data-srcset')
-                first_src = srcset.split(',')[0].split()[0]
-                img['src'] = first_src
-            elif img.get('data-original'):
-                img['src'] = img.get('data-original')
+            if src := img.get('data-src'):
+                img['src'] = src
+            elif srcset := img.get('data-srcset'):
+                img['src'] = str(srcset).split(',')[0].split()[0]
+            elif orig := img.get('data-original'):
+                img['src'] = orig
     
     # Set CSS font sizes based on the chosen option.
     if font_size == 'small':
@@ -175,8 +176,9 @@ def save_as_pdf(content_html, output_filename):
     """
     with open(output_filename, 'wb') as f:
         result = pisa.CreatePDF(content_html, dest=f)
-    if result.err:
-        print("Error during PDF generation:", result.err)
+    err = getattr(result, 'err', None)
+    if err:
+        print("Error during PDF generation:", err)
     else:
         print(f"✅ PDF saved as: {output_filename}")
 
@@ -204,7 +206,6 @@ def main():
             output_filename = args.output
         else:
             # Derive filename from the URL slug (last path segment).
-            from urllib.parse import urlparse
             slug = urlparse(url).path.rstrip('/').split('/')[-1]
             output_filename = f"{slug}.pdf" if slug else f"{sanitize_filename(title)}.pdf"
         save_as_pdf(content_html, output_filename)
