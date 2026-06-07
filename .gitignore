@@ -13,5 +13,9 @@ Thumbs.db
 # Log files
 *.log
 
-# PDF outputs (if you don't want to track generated PDFs)
+# Config file
+config.ini
+
+# Generated outputs
 *.pdf
+*.epub
