@@ -1,5 +1,6 @@
 import argparse
 import os
+import platform
 import re
 import requests
 from bs4 import BeautifulSoup
@@ -180,9 +181,11 @@ def save_as_pdf(content_html, output_filename):
         'javascript-delay': '5000',  # Wait 2000ms to allow images to load
     }
     
-    # Explicitly set the path to the wkhtmltopdf binary.
-    # Update '/usr/local/bin/wkhtmltopdf' if your installation path is different.
-    config = pdfkit.configuration(wkhtmltopdf='/usr/local/bin/wkhtmltopdf')
+    if platform.system() == 'Windows':
+        wkhtmltopdf_path = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
+    else:
+        wkhtmltopdf_path = '/usr/local/bin/wkhtmltopdf'
+    config = pdfkit.configuration(wkhtmltopdf=wkhtmltopdf_path)
     
     try:
         pdfkit.from_string(content_html, output_filename, options=options, configuration=config)
