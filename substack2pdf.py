@@ -1,15 +1,12 @@
 import argparse
 import logging
 import re
-import smtplib
 from urllib.parse import urlparse
 
 import requests
 from bs4 import BeautifulSoup, Tag
 from xhtml2pdf import pisa
 
-from config import load_email_config
-from email_delivery import send_to_kindle
 from epub_converter import save_as_epub
 
 logging.getLogger("xhtml2pdf").setLevel(logging.ERROR)
@@ -174,7 +171,7 @@ def _resolve_output_path(requested_output, url, title, extension):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Convert a Substack/Medium post to PDF or EPUB, optionally sending to Kindle."
+        description="Convert a Substack or Medium post to EPUB or PDF."
     )
     parser.add_argument("url", help="URL of the post (Substack or Medium)")
     parser.add_argument(
@@ -184,9 +181,9 @@ def main():
     )
     parser.add_argument(
         "--format",
-        choices=["pdf", "epub", "both"],
-        default="pdf",
-        help="Output format (default: pdf)",
+        choices=["epub", "pdf", "both"],
+        default="epub",
+        help="Output format (default: epub)",
     )
     parser.add_argument("--no-images", action="store_true", help="Exclude images from the output")
     parser.add_argument(
@@ -200,21 +197,8 @@ def main():
         action="store_true",
         help="Enable Medium article extraction instead of Substack",
     )
-    parser.add_argument(
-        "--send-email",
-        action="store_true",
-        help="Email the generated EPUB to your Kindle address (requires SMTP config)",
-    )
-    parser.add_argument(
-        "--email-to",
-        help="Override the Kindle destination address for this run",
-    )
 
     args = parser.parse_args()
-
-    if args.send_email and args.format == "pdf":
-        print("Note: --send-email requires EPUB output; switching format to epub.")
-        args.format = "epub"
 
     title, content_html = fetch_substack_content(
         url=args.url,
@@ -226,40 +210,13 @@ def main():
         print("Failed to retrieve or parse the post content.")
         return
 
-    generated_files = []
+    if args.format in ("epub", "both"):
+        epub_path = _resolve_output_path(args.output, args.url, title, ".epub")
+        save_as_epub(title, content_html, epub_path, font_size=args.font_size)
 
     if args.format in ("pdf", "both"):
         pdf_path = _resolve_output_path(args.output, args.url, title, ".pdf")
-        if save_as_pdf(content_html, pdf_path):
-            generated_files.append(pdf_path)
-
-    if args.format in ("epub", "both"):
-        epub_path = _resolve_output_path(args.output, args.url, title, ".epub")
-        save_as_epub(title, content_html, epub_path)
-        generated_files.append(epub_path)
-
-    if args.send_email:
-        epub_candidates = [path for path in generated_files if path.endswith(".epub")]
-        if not epub_candidates:
-            print("Error: no EPUB was generated to email.")
-            return
-
-        try:
-            email_config = load_email_config()
-            send_to_kindle(
-                file_path=epub_candidates[-1],
-                subject=title,
-                config=email_config,
-                recipient=args.email_to,
-            )
-        except ValueError as exc:
-            print(f"Error: {exc}")
-        except smtplib.SMTPException as exc:
-            print(
-                f"Error: SMTP delivery failed: {exc}\n"
-                "Make sure your sender email is approved in your Amazon account "
-                "and that your SMTP credentials are correct."
-            )
+        save_as_pdf(content_html, pdf_path)
 
 
 if __name__ == "__main__":

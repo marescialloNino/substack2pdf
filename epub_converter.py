@@ -11,6 +11,11 @@ from ebooklib import epub
 USER_AGENT = "Mozilla/5.0"
 MAX_IMAGE_BYTES = 10 * 1024 * 1024
 
+FONT_PRESETS = {
+    "small": {"body": "18px", "h1": "24px", "subtitle": "18px"},
+    "big": {"body": "26px", "h1": "34px", "subtitle": "22px"},
+}
+
 
 def _guess_extension(url: str, content_type: str | None) -> str:
     if content_type:
@@ -34,6 +39,23 @@ def _media_type_for_extension(ext: str) -> str:
         ".svg": "image/svg+xml",
     }
     return mapping.get(ext.lower(), "image/jpeg")
+
+
+def _build_stylesheet(font_size: str) -> str:
+    sizes = FONT_PRESETS.get(font_size, FONT_PRESETS["big"])
+    return (
+        f"body {{ font-family: serif; font-size: {sizes['body']}; "
+        f"line-height: 1.6; margin: 1em; }} "
+        f"h1 {{ font-size: {sizes['h1']}; margin-bottom: 0.5em; }} "
+        f".subtitle {{ font-size: {sizes['subtitle']}; color: #555; margin-bottom: 1em; }} "
+        "p { margin-bottom: 1em; } "
+        "figure { text-align: center; margin: 1.5em 0; } "
+        "img { max-width: 100%; height: auto; display: block; margin: 0.5em auto; } "
+        ".image-caption, figcaption { font-size: 0.85em; color: #666; text-align: center; } "
+        "pre, code { font-family: monospace; font-size: 0.9em; background: #f5f5f5; "
+        "padding: 0.2em 0.4em; border-radius: 3px; } "
+        "pre { padding: 0.8em; overflow-x: auto; white-space: pre-wrap; }"
+    )
 
 
 def _embed_images(body, book: epub.EpubBook, session: requests.Session) -> None:
@@ -63,7 +85,12 @@ def _embed_images(body, book: epub.EpubBook, session: requests.Session) -> None:
             img.decompose()
 
 
-def save_as_epub(title: str, content_html: str, output_filename: str) -> None:
+def save_as_epub(
+    title: str,
+    content_html: str,
+    output_filename: str,
+    font_size: str = "big",
+) -> None:
     """Convert HTML content to an EPUB file with embedded images."""
     book = epub.EpubBook()
     book.set_identifier(output_filename)
@@ -83,18 +110,7 @@ def save_as_epub(title: str, content_html: str, output_filename: str) -> None:
         uid="style",
         file_name="style/main.css",
         media_type="text/css",
-        content=(
-            "body { font-family: serif; line-height: 1.6; margin: 1em; } "
-            "h1 { font-size: 1.6em; margin-bottom: 0.5em; } "
-            ".subtitle { font-size: 1.1em; color: #555; margin-bottom: 1em; } "
-            "p { margin-bottom: 1em; } "
-            "figure { text-align: center; margin: 1.5em 0; } "
-            "img { max-width: 100%; height: auto; display: block; margin: 0.5em auto; } "
-            ".image-caption, figcaption { font-size: 0.85em; color: #666; text-align: center; } "
-            "pre, code { font-family: monospace; font-size: 0.9em; background: #f5f5f5; "
-            "padding: 0.2em 0.4em; border-radius: 3px; } "
-            "pre { padding: 0.8em; overflow-x: auto; white-space: pre-wrap; }"
-        ),
+        content=_build_stylesheet(font_size),
     )
     book.add_item(style)
 

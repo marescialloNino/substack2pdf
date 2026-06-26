@@ -13,9 +13,6 @@ Thumbs.db
 # Log files
 *.log
 
-# Config file
-config.ini
-
 # Generated outputs
 *.pdf
 *.epub
