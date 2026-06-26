@@ -81,8 +81,3 @@ This tool generates the file locally. To read on Kindle:
 | `--font-size small\|big` | Font size preset (default: `big`) |
 | `--no-images` | Strip all images |
 | `--medium` | Use Medium article selectors |
-
-## Project docs
-
-- [COMPETITORS.md](COMPETITORS.md) — landscape of similar tools
-- [TODO.md](TODO.md) — planned improvements

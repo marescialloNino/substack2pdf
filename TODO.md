@@ -16,4 +16,3 @@
 
 - [ ] FastAPI wrapper around conversion core
 - [ ] Simple web UI: paste URL → download EPUB
-- [ ] See [COMPETITORS.md](COMPETITORS.md) for positioning
