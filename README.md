@@ -1,7 +1,7 @@
 # Substack to PDF Converter CLI Tool
 
 ## Overview
-This command-line tool converts a Substack post into a PDF file. It fetches the post content, applies custom CSS for styling (such as customizable font sizes), and then generates a PDF using wkhtmltopdf via the pdfkit library.
+This command-line tool converts a Substack post into a PDF file. It fetches the post content, applies custom CSS for styling (such as customizable font sizes), and then generates a PDF using xhtml2pdf.
 
 ## Objectives
 - **Fetch Content:** Retrieve the HTML content and title from a specified Substack post.
@@ -18,8 +18,7 @@ This command-line tool converts a Substack post into a PDF file. It fetches the 
 - **Automatic Desktop Saving:** If no output path is specified, the PDF is saved to the user’s Desktop with the post's title as the filename.
 
 ## Requirements
-- Python packages: `requests`, `beautifulsoup4`, and `pdfkit`
-- wkhtmltopdf (Installed and available in the system PATH or specified explicitly in the code)
+- Python packages: `requests`, `beautifulsoup4`, and `xhtml2pdf`
 
 ## Installation
 
@@ -35,11 +34,7 @@ This command-line tool converts a Substack post into a PDF file. It fetches the 
 3. Install the required Python packages:
     - pip install -r requirements.txt
 
-4. Install wkhtmltopdf:
-    - https://wkhtmltopdf.org/downloads.html
-    - Add wkhtmltopdf to the system PATH
-
-5. Run the script
+4. Run the script
 
 ## Usage
 

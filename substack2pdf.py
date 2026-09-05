@@ -1,6 +1,5 @@
 import argparse
-import os
-import platform
+import logging
 import re
 from urllib.parse import urlparse
 import requests
@@ -175,21 +174,11 @@ def save_as_pdf(content_html, output_filename):
         content_html (str): HTML content of the post.
         output_filename (str): The filename for the resulting PDF.
     """
-    options = {
-        'encoding': 'UTF-8',
-        'page-size': 'A4',
-        'quiet': '',
-        'javascript-delay': '5000',  # Wait 2000ms to allow images to load
-    }
-    
-    if platform.system() == 'Windows':
-        wkhtmltopdf_path = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
+    with open(output_filename, "wb") as f:
+        result = pisa.CreatePDF(content_html, dest=f)
+    if result.err:
+        print(f"❌ Failed to create PDF: {output_filename}")
     else:
-        wkhtmltopdf_path = '/usr/local/bin/wkhtmltopdf'
-    config = pdfkit.configuration(wkhtmltopdf=wkhtmltopdf_path)
-    
-    try:
-        pdfkit.from_string(content_html, output_filename, options=options, configuration=config)
         print(f"✅ PDF saved as: {output_filename}")
 
 def main():
